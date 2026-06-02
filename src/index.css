@@ -1,0 +1,280 @@
+@import url("https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800&family=Amiri:wght@400;700&display=swap");
+@import "./styles/dashboard-tokens.css";
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 35 30% 96%;
+    --foreground: 30 10% 15%;
+
+    --card: 35 25% 98%;
+    --card-foreground: 30 10% 15%;
+
+    --popover: 35 25% 98%;
+    --popover-foreground: 30 10% 15%;
+
+    --primary: 35 45% 30%;
+    --primary-foreground: 35 30% 96%;
+
+    --secondary: 35 20% 90%;
+    --secondary-foreground: 30 10% 15%;
+
+    --muted: 35 15% 92%;
+    --muted-foreground: 30 8% 50%;
+
+    --accent: 40 60% 50%;
+    --accent-foreground: 35 30% 96%;
+
+    --destructive: 0 70% 50%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 35 15% 85%;
+    --input: 35 15% 85%;
+    --ring: 35 45% 30%;
+
+    --radius: 0.5rem;
+
+    --gold: 40 70% 55%;
+    --gold-foreground: 30 10% 15%;
+    --cream: 35 30% 96%;
+    --charcoal: 30 10% 20%;
+    --warm-gray: 30 5% 60%;
+
+    --sidebar-background: 35 25% 98%;
+    --sidebar-foreground: 30 10% 15%;
+    --sidebar-primary: 35 45% 30%;
+    --sidebar-primary-foreground: 35 30% 96%;
+    --sidebar-accent: 35 20% 90%;
+    --sidebar-accent-foreground: 30 10% 15%;
+    --sidebar-border: 35 15% 85%;
+    --sidebar-ring: 35 45% 30%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  html {
+    direction: rtl;
+  }
+
+  body {
+    @apply bg-background text-foreground font-body antialiased;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    @apply font-heading;
+  }
+}
+
+@layer utilities {
+  .gold-gradient {
+    background: linear-gradient(135deg, hsl(40 70% 55%), hsl(35 60% 45%));
+  }
+
+  .hero-overlay {
+    background: linear-gradient(
+      to left,
+      hsl(30 10% 15% / 0.7),
+      hsl(30 10% 15% / 0.3)
+    );
+  }
+
+  .card-hover {
+    @apply transition-all duration-300 hover:shadow-lg hover:-translate-y-1;
+  }
+
+  /* ====== Dashboard utilities — brand tokens via dashboard-tokens.css ====== */
+  .saneen-card {
+    @apply dashboard-card;
+  }
+
+  .saneen-btn-dark {
+    @apply dashboard-btn-primary;
+  }
+
+  .saneen-btn-gold {
+    @apply dashboard-btn-accent;
+  }
+
+  .saneen-btn-outline {
+    @apply dashboard-btn-outline;
+  }
+
+  .saneen-input {
+    @apply dashboard-input;
+  }
+
+  .saneen-select {
+    @apply dashboard-select;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%238a8278' viewBox='0 0 16 16'%3E%3Cpath d='M8 11L3 6h10z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: left 12px center;
+    padding-left: 2rem;
+  }
+
+  .saneen-label {
+    @apply dashboard-label;
+  }
+
+  /* تجاوب عام — هواتف */
+  .page-section {
+    @apply py-6 sm:py-8 md:py-10;
+  }
+
+  .page-title {
+    @apply font-heading text-2xl sm:text-3xl md:text-4xl font-bold text-foreground;
+  }
+
+  .touch-target {
+    @apply min-h-[44px] min-w-[44px];
+  }
+
+  .select-field {
+    @apply w-full h-11 sm:h-10 px-3 rounded-md border border-input bg-background text-base sm:text-sm;
+    @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2;
+  }
+
+  .select-field-error {
+    @apply border-destructive focus-visible:ring-destructive/30;
+  }
+}
+
+@keyframes fadeSlideUp {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ====== Printing — فواتير موحدة ====== */
+@media print {
+  html,
+  body {
+    margin: 0 !important;
+    padding: 0 !important;
+    height: auto !important;
+    width: 100% !important;
+    background: white !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  body * {
+    visibility: hidden !important;
+  }
+
+  .invoice-print-root,
+  .invoice-print-root * {
+    visibility: visible !important;
+  }
+
+  .invoice-print-root {
+    position: fixed !important;
+    inset: 0 !important;
+    width: 100% !important;
+    height: auto !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    background: white !important;
+    z-index: 999999 !important;
+    display: block !important;
+    overflow: visible !important;
+  }
+
+  .invoice-print-backdrop,
+  .invoice-print-toolbar,
+  .no-print {
+    display: none !important;
+    visibility: hidden !important;
+  }
+
+  .invoice-print-card {
+    position: static !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    max-height: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    box-shadow: none !important;
+    border: none !important;
+    border-radius: 0 !important;
+    overflow: visible !important;
+  }
+
+  .invoice-print-scroll {
+    overflow: visible !important;
+    max-height: none !important;
+  }
+
+  #invoice-content,
+  .invoice-print-body {
+    display: block !important;
+    width: 100% !important;
+    max-width: 210mm !important;
+    margin: 0 auto !important;
+    padding: 12mm 10mm !important;
+    box-sizing: border-box !important;
+    color: #000 !important;
+    background: white !important;
+  }
+
+  .invoice-print-body table {
+    width: 100% !important;
+    border-collapse: collapse !important;
+    page-break-inside: auto;
+  }
+
+  .invoice-print-body tr {
+    page-break-inside: avoid;
+    page-break-after: auto;
+  }
+
+  .invoice-print-body th,
+  .invoice-print-body td {
+    border: 1px solid #333 !important;
+    padding: 6px 8px !important;
+  }
+
+  .invoice-print-body thead {
+    display: table-header-group;
+  }
+
+  .invoice-brand {
+    page-break-after: avoid;
+  }
+
+  /* ملخص الربح الداخلي — للشاشة فقط، لا يُطبع للمورد */
+  .invoice-internal {
+    display: none !important;
+    visibility: hidden !important;
+  }
+
+  .invoice-info-grid .bg-gray-50\/80 {
+    background: white !important;
+  }
+
+  .invoice-totals {
+    background: white !important;
+    border: 1px solid #333 !important;
+  }
+
+  @page {
+    size: A4 portrait;
+    margin: 8mm;
+  }
+}

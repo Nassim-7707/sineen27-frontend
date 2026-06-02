@@ -1,0 +1,451 @@
+/**
+ * Dashboard design system — depth & spacing from existing brand tokens only.
+ */
+
+@layer base {
+  .dashboard-shell {
+    --dash-elevated: 35 25% 99%;
+    --dash-surface: 35 22% 97%;
+    --dash-border-soft: 35 12% 88%;
+    --dash-shadow: 30 10% 15%;
+    --dash-primary-soft: 35 45% 30%;
+    --dash-accent-soft: 40 60% 50%;
+  }
+}
+
+@layer components {
+  /* —— Layout (8px scale: 8, 16, 24, 32, 48) —— */
+  .dashboard-app {
+    @apply min-h-screen bg-background font-body text-foreground;
+  }
+
+  .dashboard-layout {
+    @apply flex flex-col lg:flex-row min-h-screen;
+  }
+
+  /* شريط علوي ثابت */
+  .dashboard-topnav {
+    @apply fixed top-0 left-0 right-0 z-[70] h-[72px];
+    @apply bg-card/95 backdrop-blur-lg border-b border-border/80;
+    box-shadow: 0 4px 24px hsl(var(--dash-shadow) / 0.05);
+  }
+
+  .dashboard-topnav-inner {
+    @apply max-w-[1600px] mx-auto h-full px-4 sm:px-6 flex items-center gap-4 sm:gap-6;
+  }
+
+  .dashboard-topnav-brand {
+    @apply flex items-center gap-3 shrink-0 transition-opacity hover:opacity-90;
+  }
+
+  .dashboard-topnav-links {
+    @apply flex-1 min-w-0 overflow-x-auto;
+    scrollbar-width: none;
+  }
+
+  .dashboard-topnav-links::-webkit-scrollbar {
+    display: none;
+  }
+
+  .dashboard-topnav-links ul {
+    @apply flex items-center gap-1 justify-start sm:justify-center min-w-max py-1;
+  }
+
+  .dashboard-topnav-link {
+    @apply flex items-center gap-2 px-3 sm:px-4 py-2.5 rounded-full text-xs sm:text-sm font-semibold whitespace-nowrap;
+    @apply text-muted-foreground transition-all duration-200;
+    @apply hover:bg-secondary hover:text-foreground;
+  }
+
+  .dashboard-topnav-link-active {
+    @apply bg-primary text-primary-foreground shadow-md;
+    box-shadow: 0 4px 14px hsl(var(--dash-primary-soft) / 0.22);
+  }
+
+  .dashboard-topnav-link-active svg {
+    @apply text-accent;
+  }
+
+  .dashboard-topnav-actions {
+    @apply flex items-center gap-2 sm:gap-3 shrink-0;
+  }
+
+  .dashboard-main {
+    @apply w-full min-h-screen;
+  }
+
+  .dashboard-content {
+    @apply w-full max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8;
+    @apply pt-[88px] pb-28 lg:pb-10;
+  }
+
+  .dashboard-section-block {
+    @apply dashboard-card space-y-6;
+  }
+
+  .dashboard-section-head {
+    @apply flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pb-4 border-b border-border/60;
+  }
+
+  .dashboard-page {
+    @apply space-y-8 dashboard-fade-in;
+  }
+
+  .dashboard-page-header {
+    @apply flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between;
+  }
+
+  .dashboard-grid {
+    @apply grid gap-6;
+  }
+
+  .dashboard-grid-2 {
+    @apply dashboard-grid sm:grid-cols-2;
+  }
+
+  .dashboard-grid-3 {
+    @apply dashboard-grid sm:grid-cols-2 lg:grid-cols-3;
+  }
+
+  .dashboard-grid-4 {
+    @apply dashboard-grid sm:grid-cols-2 xl:grid-cols-4;
+  }
+
+  .dashboard-grid-main-side {
+    @apply dashboard-grid lg:grid-cols-12 gap-8;
+  }
+
+  .dashboard-col-main {
+    @apply lg:col-span-8 space-y-8;
+  }
+
+  .dashboard-col-side {
+    @apply lg:col-span-4 space-y-8;
+  }
+
+  /* —— Typography —— */
+  .dash-page-title {
+    @apply font-heading text-2xl sm:text-3xl font-bold text-foreground leading-tight;
+  }
+
+  .dash-section-title {
+    @apply text-lg font-bold text-foreground;
+  }
+
+  .dash-card-title {
+    @apply text-base font-semibold text-foreground;
+  }
+
+  .dash-caption {
+    @apply text-xs text-muted-foreground font-medium;
+  }
+
+  .dash-stat-value {
+    @apply text-2xl sm:text-3xl font-black text-foreground tabular-nums tracking-tight;
+  }
+
+  .dash-stat-label {
+    @apply text-xs font-semibold text-muted-foreground mt-1;
+  }
+
+  /* —— Motion —— */
+  .dashboard-fade-in {
+    animation: dashPageIn 0.45s ease-out both;
+  }
+
+  @keyframes dashPageIn {
+    from {
+      opacity: 0;
+      transform: translateY(12px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  /* —— Cards —— */
+  .dashboard-shell {
+    @apply min-h-screen bg-background font-body text-foreground;
+  }
+
+  .dashboard-card {
+    @apply rounded-2xl border border-border/70 bg-card p-6;
+    box-shadow:
+      0 1px 2px hsl(var(--dash-shadow) / 0.04),
+      0 8px 24px hsl(var(--dash-shadow) / 0.05);
+    @apply transition-all duration-300;
+  }
+
+  .dashboard-card-hover {
+    @apply dashboard-card hover:-translate-y-0.5;
+    box-shadow:
+      0 1px 2px hsl(var(--dash-shadow) / 0.04),
+      0 12px 32px hsl(var(--dash-shadow) / 0.08);
+  }
+
+  .dashboard-card-flat {
+    @apply rounded-2xl border border-border/60 bg-card/80 p-5;
+  }
+
+  .dashboard-stat-card {
+    @apply dashboard-card p-6 flex flex-col justify-between min-h-[120px];
+  }
+
+  /* —— Buttons (pill / soft-rounded + lift) —— */
+  .dashboard-btn-primary {
+    @apply inline-flex items-center justify-center gap-2 h-11 px-6 rounded-full font-bold text-sm;
+    @apply bg-primary text-primary-foreground;
+    box-shadow: 0 2px 8px hsl(var(--dash-primary-soft) / 0.2);
+    @apply transition-all duration-200;
+    @apply hover:bg-primary/90 hover:-translate-y-0.5 hover:shadow-lg active:scale-[0.98] disabled:opacity-50;
+  }
+
+  .dashboard-btn-accent {
+    @apply inline-flex items-center justify-center gap-2 h-11 px-6 rounded-full font-bold text-sm;
+    @apply gold-gradient text-accent-foreground;
+    box-shadow: 0 4px 16px hsl(var(--dash-accent-soft) / 0.28);
+    @apply transition-all duration-200;
+    @apply hover:-translate-y-0.5 hover:shadow-xl active:scale-[0.98] disabled:opacity-50;
+  }
+
+  .dashboard-btn-outline {
+    @apply inline-flex items-center justify-center gap-2 h-11 px-6 rounded-full font-bold text-sm;
+    @apply border border-border bg-card text-foreground;
+    @apply transition-all duration-200;
+    @apply hover:bg-secondary hover:border-primary/20 hover:-translate-y-0.5 hover:shadow-md active:scale-[0.98];
+  }
+
+  .dashboard-btn-ghost {
+    @apply inline-flex items-center justify-center gap-2 h-10 px-4 rounded-full text-sm font-semibold;
+    @apply text-muted-foreground transition-all duration-200;
+    @apply hover:bg-secondary hover:text-foreground;
+  }
+
+  .dashboard-btn-sm {
+    @apply h-9 px-4 text-xs rounded-full;
+  }
+
+  /* —— Forms —— */
+  .dashboard-input {
+    @apply w-full h-11 rounded-xl border border-input bg-muted/60 px-4 text-sm font-medium text-foreground;
+    @apply placeholder:text-muted-foreground/80 transition-all duration-200 outline-none;
+    @apply focus:bg-card focus:border-ring focus:ring-2 focus:ring-ring/15;
+  }
+
+  .dashboard-select {
+    @apply dashboard-input cursor-pointer;
+  }
+
+  .dashboard-label {
+    @apply dash-caption mb-2 block;
+  }
+
+  /* —— Tables —— */
+  .dashboard-table-wrap {
+    @apply dashboard-card p-0 overflow-hidden;
+  }
+
+  /** جداول طويلة (ولايات، بلديات…) — تمرير عمودي مع شريط مرئي */
+  .dashboard-table-scroll {
+    @apply !overflow-y-auto overflow-x-auto;
+    scrollbar-gutter: stable;
+  }
+
+  .dashboard-table {
+    @apply w-full text-right border-collapse text-sm;
+  }
+
+  .dashboard-table thead {
+    @apply sticky top-0 z-10 bg-muted/95 backdrop-blur-sm;
+    @apply text-muted-foreground text-xs font-bold;
+  }
+
+  .dashboard-table thead th {
+    @apply py-4 px-6 border-b border-border;
+  }
+
+  .dashboard-table tbody tr {
+    @apply border-b border-border/50 transition-colors duration-150;
+  }
+
+  .dashboard-table tbody tr:nth-child(even) {
+    @apply bg-muted/30;
+  }
+
+  .dashboard-table tbody tr:hover {
+    @apply bg-primary/5;
+  }
+
+  .dashboard-table tbody td {
+    @apply py-4 px-6 font-semibold text-foreground;
+  }
+
+  /* —— Badges —— */
+  .dashboard-badge {
+    @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold;
+  }
+
+  .dashboard-badge-online {
+    @apply dashboard-badge bg-primary/10 text-primary;
+  }
+
+  .dashboard-badge-store {
+    @apply dashboard-badge bg-accent/15 text-accent;
+  }
+
+  .dashboard-badge-success {
+    @apply dashboard-badge bg-secondary text-foreground border border-border/80;
+  }
+
+  .dashboard-alert-warning {
+    @apply rounded-2xl border border-accent/25 bg-accent/10 p-4;
+  }
+
+  /* —— Modals —— */
+  .dashboard-modal-backdrop {
+    @apply fixed inset-0 z-[100] bg-charcoal/50 backdrop-blur-sm;
+    animation: dashFadeIn 0.2s ease-out;
+  }
+
+  .dashboard-modal-panel {
+    @apply relative bg-card rounded-2xl border border-border/80 overflow-hidden;
+    box-shadow: 0 24px 48px hsl(var(--dash-shadow) / 0.18);
+    animation: dashModalIn 0.28s ease-out;
+  }
+
+  @keyframes dashFadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+
+  @keyframes dashModalIn {
+    from {
+      opacity: 0;
+      transform: scale(0.96) translateY(8px);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1) translateY(0);
+    }
+  }
+
+  /* —— Empty & skeleton —— */
+  .dashboard-empty {
+    @apply flex flex-col items-center justify-center py-16 px-6 text-center rounded-2xl;
+    @apply border border-dashed border-border bg-muted/30;
+  }
+
+  .dashboard-empty-icon {
+    @apply h-14 w-14 rounded-2xl bg-muted flex items-center justify-center text-muted-foreground mb-4;
+  }
+
+  .dashboard-skeleton {
+    @apply rounded-xl bg-muted animate-pulse;
+  }
+
+  /* —— KPI & chart —— */
+  .dashboard-kpi-icon-primary {
+    @apply h-11 w-11 rounded-xl bg-primary/10 flex items-center justify-center text-primary;
+  }
+
+  .dashboard-kpi-icon-accent {
+    @apply h-11 w-11 rounded-xl bg-accent/15 flex items-center justify-center text-accent;
+  }
+
+  .dashboard-kpi-icon-muted {
+    @apply h-11 w-11 rounded-xl bg-muted flex items-center justify-center text-muted-foreground;
+  }
+
+  .dashboard-kpi-icon-gold {
+    @apply h-11 w-11 rounded-xl bg-gold/20 flex items-center justify-center text-gold;
+  }
+
+  .dashboard-chart-panel {
+    @apply rounded-2xl p-6 sm:p-8 text-primary-foreground;
+    background: linear-gradient(
+      165deg,
+      hsl(var(--charcoal)) 0%,
+      hsl(30 10% 18%) 100%
+    );
+    box-shadow: 0 8px 32px hsl(var(--dash-shadow) / 0.12);
+  }
+
+  .dashboard-pos-footer {
+    @apply p-6 rounded-b-2xl text-primary-foreground;
+    background: linear-gradient(
+      180deg,
+      hsl(var(--charcoal)) 0%,
+      hsl(30 10% 16%) 100%
+    );
+  }
+
+  /* —— Mobile nav —— */
+  .dashboard-mobile-nav {
+    @apply lg:hidden fixed bottom-0 left-0 right-0 z-[70] bg-card/95 backdrop-blur-md;
+    @apply border-t border-border pb-[env(safe-area-inset-bottom)];
+    box-shadow: 0 -8px 32px hsl(var(--dash-shadow) / 0.06);
+  }
+
+  .dashboard-mobile-nav-link {
+    @apply flex flex-col items-center justify-center py-2 min-w-[56px] gap-1;
+    @apply text-muted-foreground transition-all duration-200;
+  }
+
+  .dashboard-mobile-nav-link-active {
+    @apply text-primary;
+  }
+
+  .dashboard-mobile-nav-icon {
+    @apply p-2 rounded-xl transition-transform duration-200;
+  }
+
+  .dashboard-mobile-nav-link-active .dashboard-mobile-nav-icon {
+    @apply bg-primary text-primary-foreground shadow-md;
+  }
+
+  .dashboard-nav-brand-icon {
+    @apply h-10 w-10 rounded-xl gold-gradient flex items-center justify-center shrink-0;
+    box-shadow: 0 4px 12px hsl(var(--dash-accent-soft) / 0.25);
+  }
+
+  .dashboard-nav-link {
+    @apply dashboard-topnav-link;
+  }
+
+  .dashboard-nav-link-active {
+    @apply dashboard-topnav-link-active;
+  }
+
+  .dashboard-nav {
+    @apply dashboard-topnav;
+  }
+}
+
+/* Dashboard scrollbars — brand thumb */
+.dashboard-shell *,
+.dashboard-sidebar *,
+.dashboard-main * {
+  scrollbar-width: thin;
+  scrollbar-color: hsl(var(--primary) / 0.35) transparent;
+}
+
+.dashboard-shell *::-webkit-scrollbar,
+.dashboard-sidebar *::-webkit-scrollbar,
+.dashboard-main *::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+.dashboard-shell *::-webkit-scrollbar-thumb,
+.dashboard-sidebar *::-webkit-scrollbar-thumb,
+.dashboard-main *::-webkit-scrollbar-thumb {
+  background: hsl(var(--primary) / 0.3);
+  border-radius: 999px;
+}
+
+.dashboard-shell *::-webkit-scrollbar-thumb:hover,
+.dashboard-sidebar *::-webkit-scrollbar-thumb:hover,
+.dashboard-main *::-webkit-scrollbar-thumb:hover {
+  background: hsl(var(--primary) / 0.45);
+}

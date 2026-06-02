@@ -1,0 +1,11 @@
+export { default as OverviewTab } from "./OverviewTab";
+export { default as POSTab } from "./POSTab";
+export { default as CatalogTab } from "./CatalogTab";
+export { default as OrdersTab } from "./OrdersTab";
+export { default as FiltersTab } from "./FiltersTab";
+export { default as LogisticsTab } from "./LogisticsTab";
+export { default as RecoverySecretAlert } from "./RecoverySecretAlert";
+export { default as UsersTab } from "./UsersTab";
+export { default as PurchasesTab } from "./PurchasesTab";
+export * from "./Modals";
+export * from "./dashboard-ui";

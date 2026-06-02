@@ -80,8 +80,10 @@ export function ProductsProvider({ children }: { children: React.ReactNode }) {
   async function loadProducts() {
     try {
       const data = await api.getAll() as any[];
-      setProducts(data && data.length > 0 ? data.map(mapProduct) : INITIAL_PRODUCTS);
+      // API responded — trust its data (archived products won't be included)
+      setProducts(data ? data.map(mapProduct) : []);
     } catch {
+      // API unreachable — only then use initial products
       setProducts(INITIAL_PRODUCTS);
     }
   }
@@ -129,10 +131,16 @@ export function ProductsProvider({ children }: { children: React.ReactNode }) {
   };
 
   const deleteProduct = async (id: string) => {
+    // Optimistic update in UI
     saveLocal(products.map(p => p.id === id ? { ...p, archived: true } : p));
     try {
       await api.archive(id);
-    } catch {}
+      // Reload from backend to confirm deletion persisted
+      await loadProducts();
+    } catch {
+      // If API call failed, revert the optimistic update
+      await loadProducts();
+    }
   };
 
   const toggleProductPublished = async (id: string) => {
@@ -143,7 +151,11 @@ export function ProductsProvider({ children }: { children: React.ReactNode }) {
     try {
       if (next) await api.publish(id);
       else await api.unpublish(id);
-    } catch {}
+      // Reload to confirm change persisted
+      await loadProducts();
+    } catch {
+      await loadProducts();
+    }
   };
 
   const moveProduct = (id: string, direction: "up" | "down") => {

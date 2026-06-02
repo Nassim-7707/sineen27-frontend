@@ -3,16 +3,17 @@
 const BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:3001";
 
 // ── Token management ──────────────────────────────────────────────────────────
-let _token: string | null = sessionStorage.getItem("sineen_access_token");
+// Use localStorage so token persists across page refreshes
+let _token: string | null = localStorage.getItem("sineen_access_token");
 
 export function setToken(token: string) {
   _token = token;
-  sessionStorage.setItem("sineen_access_token", token);
+  localStorage.setItem("sineen_access_token", token);
 }
 
 export function clearToken() {
   _token = null;
-  sessionStorage.removeItem("sineen_access_token");
+  localStorage.removeItem("sineen_access_token");
 }
 
 export function getToken(): string | null {

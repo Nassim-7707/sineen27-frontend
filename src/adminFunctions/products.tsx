@@ -2,12 +2,6 @@ import React, { createContext, useContext, useState, useEffect } from "react";
 import { sanitizeProductCopy } from "@/adminFunctions/plainCopy";
 import { getAdminCatalogProducts } from "@/adminFunctions/productDisplay";
 import { products as api } from "@/adminFunctions/api";
-import product1 from "@/assets/product-1.jpg";
-import product2 from "@/assets/product-2.jpg";
-import product3 from "@/assets/product-3.jpg";
-import product4 from "@/assets/product-4.jpg";
-import product5 from "@/assets/product-5.jpg";
-import product6 from "@/assets/product-6.jpg";
 
 export interface Product {
   id: string;
@@ -31,15 +25,6 @@ export interface Product {
   sizeCostPrices?: Record<string, number>;
   reorderLevel?: number;
 }
-
-const INITIAL_PRODUCTS: Product[] = [
-  { id: "prod-1", name: "عباءة 'شيهانة' بتطريز خليجي", image: product1, description: "عباءة بتطريز يدوي على الأطراف.", colors: ["أسود", "ذهبي"], sizes: ["52", "54", "56", "58", "60"], category: "عباءة", featured: true, isPublished: true, sortOrder: 0, archived: false },
-  { id: "prod-2", name: "عباءة 'لميس' بشت ندى ناعم", image: product2, description: "عباءة بشت بقصة مريحة.", colors: ["أسود", "كحلي"], sizes: ["54", "56", "58"], category: "قميص", featured: true, isPublished: true, sortOrder: 1, archived: false },
-  { id: "prod-3", name: "فستان بتطريز خفيف 'حورية'", image: product3, description: "فستان بخامة ناعمة منسدلة.", colors: ["أخضر زيتي"], sizes: ["50", "52", "54"], category: "عباءة", featured: false, isPublished: true, sortOrder: 2, archived: false },
-  { id: "prod-4", name: "عباءة 'نور' المفتوحة", image: product4, description: "عباءة بقماش كريب.", colors: ["أسود"], sizes: ["54", "56", "58"], category: "عباءة", featured: true, isPublished: true, sortOrder: 3, archived: false },
-  { id: "prod-5", name: "طقم الصلاة الإسلامي المستور", image: product5, description: "طقم صلاة متكامل.", colors: ["وردي فاتح", "رمادي مسود"], sizes: ["Standard"], category: "طقم صلاة", featured: true, isPublished: true, sortOrder: 4, archived: false },
-  { id: "prod-6", name: "عباءة 'الكوثر' بتفاصيل الزم", image: product6, description: "تزميم على مستوى المعصم.", colors: ["بني داكن", "أسود"], sizes: ["52", "54", "56"], category: "قميص", featured: false, isPublished: true, sortOrder: 5, archived: false },
-];
 
 // map backend product (imageUrl) to frontend shape (image)
 function mapProduct(p: any): Product {
@@ -80,11 +65,11 @@ export function ProductsProvider({ children }: { children: React.ReactNode }) {
   async function loadProducts() {
     try {
       const data = await api.getAll() as any[];
-      // API responded — trust its data (archived products won't be included)
+      // Always trust the database — never fall back to hardcoded products
       setProducts(data ? data.map(mapProduct) : []);
     } catch {
-      // API unreachable — only then use initial products
-      setProducts(INITIAL_PRODUCTS);
+      // API unreachable — keep current state, don't replace with fake data
+      console.warn("[Products] Could not load from API — keeping current state");
     }
   }
 

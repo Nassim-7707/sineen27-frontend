@@ -65,11 +65,14 @@ export function ProductsProvider({ children }: { children: React.ReactNode }) {
   async function loadProducts() {
     try {
       const data = await api.getAll() as any[];
-      // Always trust the database — never fall back to hardcoded products
       setProducts(data ? data.map(mapProduct) : []);
-    } catch {
-      // API unreachable — keep current state, don't replace with fake data
-      console.warn("[Products] Could not load from API — keeping current state");
+    } catch (err: any) {
+      if (err?.status === 401) {
+        // Token expired — clear and let auth guard handle redirect
+        setProducts([]);
+      }
+      // Network error — keep current state (don't wipe products on flaky connection)
+      console.warn("[Products] Load failed:", err?.message);
     }
   }
 

@@ -1,12 +1,12 @@
 import { useState } from "react";
-import { useProducts } from "@/adminFunctions/products";
+import { usePublicProducts } from "@/customerFunctions/usePublicProducts";
 import { getFilteredProducts } from "@/customerFunctions/productFilters";
 import ProductCard from "@/components/ProductCard";
 import { motion, AnimatePresence } from "framer-motion";
 import { SlidersHorizontal } from "lucide-react";
 
 export default function Products() {
-  const { products = [], categories = [] } = useProducts() || {};
+  const { products = [], categories = [] } = usePublicProducts();
   const [category, setCategory] = useState("");
   const [showFilters, setShowFilters] = useState(false);
 

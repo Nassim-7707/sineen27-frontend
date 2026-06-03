@@ -1,11 +1,11 @@
-import { useProducts } from "@/adminFunctions/products";
+import { usePublicProducts } from "@/customerFunctions/usePublicProducts";
 import { getOffersProducts } from "@/customerFunctions/productFilters";
 import ProductCard from "@/components/ProductCard";
 import { Tag } from "lucide-react";
 import { motion } from "framer-motion";
 
 export default function Offers() {
-  const { products } = useProducts();
+  const { products } = usePublicProducts();
   const offers = getOffersProducts(products);
 
   return (

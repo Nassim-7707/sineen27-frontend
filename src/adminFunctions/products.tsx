@@ -118,7 +118,6 @@ export function ProductsProvider({ children }: { children: React.ReactNode }) {
       console.error("[Products] Failed to save:", err?.message);
     }
   };
-  };
 
   const updateProduct = async (id: string, updates: Partial<Product>) => {
     saveLocal(products.map(p => p.id === id ? sanitizeProductCopy({ ...p, ...updates }) : p));

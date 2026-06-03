@@ -31,7 +31,17 @@ export default function ProductCard({
   const basePrice = getLowestSellingPrice(product.id) || (product as any).basePriceDZD || 0;
   const price = applyProductDiscount(basePrice, product.discountPercent);
   const onSale = hasProductDiscount(product.discountPercent) && basePrice > 0;
-  const totalStock = getProductTotalStock(product.id, product.sizes);
+  // Use batch stock if available, fall back to product.stock (synced field)
+  const batchStock = getProductTotalStock(product.id, product.sizes);
+  const productStock = (product as any).stock;
+  const stockFromProduct = productStock && typeof productStock === "object"
+    ? Object.values(productStock as Record<string, any>).reduce((sum: number, v: any) => {
+        if (typeof v === "number") return sum + v;
+        if (typeof v === "object") return sum + Object.values(v as Record<string, number>).reduce((s, n) => s + (typeof n === "number" ? n : 0), 0);
+        return sum;
+      }, 0)
+    : 0;
+  const totalStock = batchStock > 0 ? batchStock : stockFromProduct;
   const [showSizes, setShowSizes] = useState(false);
 
   const productSizes = product.sizes || [];

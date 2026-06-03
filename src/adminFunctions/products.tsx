@@ -94,21 +94,30 @@ export function ProductsProvider({ children }: { children: React.ReactNode }) {
       sortOrder: products.filter(x => !x.archived).length,
     });
 
-    // Optimistic update
+    // Optimistic update in UI
     saveLocal([...products, newProduct]);
+
+    // Strip base64 image before sending to backend (too large)
+    // Only send URL images, not base64 data URLs
+    const isBase64 = newProduct.image?.startsWith("data:");
+    const imageForBackend = isBase64 ? "/placeholder.svg" : newProduct.image;
 
     try {
       const saved = await api.create({
         ...newProduct,
         clientId: newProduct.id,
-        imageUrl: newProduct.image,
+        imageUrl: imageForBackend,
+        image: undefined, // don't send image field
       }) as any;
-      // Replace temp id with server id
-      saveLocal(products.map(x => x.id === newProduct.id ? mapProduct({ ...saved }) : x).concat(
-        products.find(x => x.id === newProduct.id) ? [] : [mapProduct(saved)]
-      ));
+
+      // Keep local image (base64) for display, use server id
+      const merged = { ...mapProduct(saved), image: newProduct.image };
+      saveLocal([...products.filter(x => x.id !== newProduct.id), merged]);
       await loadProducts();
-    } catch {}
+    } catch (err: any) {
+      console.error("[Products] Failed to save:", err?.message);
+    }
+  };
   };
 
   const updateProduct = async (id: string, updates: Partial<Product>) => {

@@ -20,6 +20,7 @@ import {
 } from "@/adminFunctions/variantStock";
 import { batchMatchesColor, type Batch } from "@/adminFunctions/batches";
 import { sizesMatch } from "@/adminFunctions/products";
+import { products as productsApi } from "@/adminFunctions/api";
 
 export type { PurchaseInvoiceItem, PurchaseSizeLine };
 export type PurchasePaymentMethod = "cash" | "credit" | "partial" | "barter";
@@ -283,6 +284,15 @@ export function PurchasesProvider({ children }: { children: ReactNode }) {
 
     const createdBatches = addBatches(batchDataArray);
     const batchIds = createdBatches.map((b) => b.id);
+
+    // Update product basePriceDZD with suggestedSellingPrice so it syncs to store
+    batchDataArray.forEach((batchData) => {
+      if (batchData.suggestedSellingPrice > 0) {
+        productsApi.update(batchData.productId, {
+          basePriceDZD: batchData.suggestedSellingPrice,
+        }).catch(() => {});
+      }
+    });
 
     // 2. Create Invoice
     const newInvoice: PurchaseInvoice = {

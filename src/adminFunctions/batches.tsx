@@ -5,6 +5,7 @@ import {
   useEffect,
   ReactNode,
 } from "react";
+import { saveToStorage, loadFromStorage } from "@/adminFunctions/storage";
 import { sizesMatch } from "@/adminFunctions/products";
 import { batches as batchesApi } from "@/adminFunctions/api";
 
@@ -220,6 +221,7 @@ export function BatchesProvider({ children }: { children: ReactNode }) {
       return { ...b, status: totalRemaining === 0 ? "out_of_stock" : "active" } as Batch;
     });
     setBatches(processed);
+    saveToStorage("batches", processed);
   };
 
   const addBatches = (

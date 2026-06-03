@@ -1,5 +1,6 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from "react";
 import { customers as customersApi } from "@/adminFunctions/api";
+import { saveToStorage, loadFromStorage } from "@/adminFunctions/storage";
 
 export interface Customer {
   id: string;
@@ -30,15 +31,17 @@ export function CustomersProvider({ children }: { children: ReactNode }) {
   useEffect(() => { load(); }, []);
 
   async function load() {
+    const cached = loadFromStorage<Customer[]>("customers");
+    if (cached && cached.length > 0) setCustomers(cached);
     try {
       const data = await customersApi.getAll() as Customer[];
-      if (data) setCustomers(data);
+      if (data && data.length > 0) { setCustomers(data); saveToStorage("customers", data); }
     } catch {}
   }
 
   const addCustomer = async (c: Omit<Customer, "id">) => {
     const id = Date.now().toString();
-    setCustomers(prev => [...prev, { ...c, id }]);
+    setCustomers(prev => { const n = [...prev, { ...c, id }]; saveToStorage("customers", n); return n; });
     try {
       await customersApi.create({ ...c, clientId: id });
       await load();
@@ -46,12 +49,12 @@ export function CustomersProvider({ children }: { children: ReactNode }) {
   };
 
   const updateCustomer = async (id: string, updates: Partial<Customer>) => {
-    setCustomers(prev => prev.map(c => c.id === id ? { ...c, ...updates } : c));
+    setCustomers(prev => { const n = prev.map(c => c.id === id ? { ...c, ...updates } : c); saveToStorage("customers", n); return n; });
     try { await customersApi.update(id, updates); } catch {}
   };
 
   const deleteCustomer = (id: string) => {
-    setCustomers(prev => prev.filter(c => c.id !== id));
+    setCustomers(prev => { const n = prev.filter(c => c.id !== id); saveToStorage("customers", n); return n; });
   };
 
   const settleDebt = async (id: string, amount: number) => {

@@ -5,6 +5,7 @@ import {
   useEffect,
   ReactNode,
 } from "react";
+import { saveToStorage, loadFromStorage } from "@/adminFunctions/storage";
 import { purchases as purchasesApi } from "@/adminFunctions/api";
 import { useBatches } from "@/adminFunctions/batches";
 import { clampDateToToday, validateInvoiceDate } from "@/adminFunctions/validation";
@@ -234,7 +235,10 @@ export function PurchasesProvider({ children }: { children: ReactNode }) {
   const { recordDebt } = useSuppliers();
 
   useEffect(() => {
+    const cached = loadFromStorage<PurchaseInvoice[]>("purchases");
+    if (cached && cached.length > 0) { setPurchases(cached); invoiceCounter = cached.length; }
     purchasesApi.getAll().then((data: any[]) => {
+      if (!data || data.length === 0) return;
       const mapped = data.map((inv) => ({
         ...inv,
         items: (inv.items ?? []).map((raw: any) => migratePurchaseLineItem(raw as PurchaseLineDraft)),
@@ -248,6 +252,7 @@ export function PurchasesProvider({ children }: { children: ReactNode }) {
 
   const savePurchases = (newPurchases: PurchaseInvoice[]) => {
     setPurchases(newPurchases);
+    saveToStorage("purchases", newPurchases);
   };
 
   const addPurchaseInvoice = (

@@ -27,7 +27,8 @@ export default function ProductCard({
   const { addItem } = useCart();
   const navigate = useNavigate();
 
-  const basePrice = getLowestSellingPrice(product.id) || 0;
+  // Use batch price if available, fall back to product's basePriceDZD
+  const basePrice = getLowestSellingPrice(product.id) || (product as any).basePriceDZD || 0;
   const price = applyProductDiscount(basePrice, product.discountPercent);
   const onSale = hasProductDiscount(product.discountPercent) && basePrice > 0;
   const totalStock = getProductTotalStock(product.id, product.sizes);

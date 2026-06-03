@@ -88,7 +88,7 @@ export default function ProductDetail() {
           selectedSize,
           selectedColor || undefined,
         )
-      : 0) || getLowestSellingPrice(product.id) || 0;
+      : 0) || getLowestSellingPrice(product.id) || (product as any).basePriceDZD || 0;
   const price = applyProductDiscount(basePrice, product.discountPercent);
   const onSale = hasProductDiscount(product.discountPercent) && basePrice > 0;
   const availableStock = selectedSize

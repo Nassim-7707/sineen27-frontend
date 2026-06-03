@@ -133,8 +133,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     await authApi.changePassword(oldPassword, newPassword);
   };
 
-  const setUserPassword = async (_userId: string, _newPassword: string) => {
-    throw new Error("غير متاح — يرجى استخدام لوحة إدارة المستخدمين في الخادم.");
+  const setUserPassword = async (userId: string, newPassword: string) => {
+    await usersApi.setPassword(userId, newPassword);
   };
 
   const hasRecoverySecretConfigured = () => recoveryConfigured;

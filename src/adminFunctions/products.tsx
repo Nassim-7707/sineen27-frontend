@@ -102,12 +102,14 @@ export function ProductsProvider({ children }: { children: React.ReactNode }) {
     const isBase64 = newProduct.image?.startsWith("data:");
     const imageForBackend = isBase64 ? "/placeholder.svg" : newProduct.image;
 
+    // Strip frontend-only fields that don't exist in the database schema
+    const { image, basePriceDZD, costPriceDZD, stock, sizeCostPrices, ...backendProduct } = newProduct;
+
     try {
       const saved = await api.create({
-        ...newProduct,
+        ...backendProduct,
         clientId: newProduct.id,
         imageUrl: imageForBackend,
-        image: undefined, // don't send image field
       }) as any;
 
       // Keep local image (base64) for display, use server id
@@ -122,7 +124,8 @@ export function ProductsProvider({ children }: { children: React.ReactNode }) {
   const updateProduct = async (id: string, updates: Partial<Product>) => {
     saveLocal(products.map(p => p.id === id ? sanitizeProductCopy({ ...p, ...updates }) : p));
     try {
-      await api.update(id, { ...updates, imageUrl: updates.image });
+      const { image, basePriceDZD, costPriceDZD, stock, sizeCostPrices, ...backendUpdates } = updates;
+      await api.update(id, { ...backendUpdates, imageUrl: updates.image });
     } catch {}
   };
 

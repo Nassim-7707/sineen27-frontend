@@ -143,7 +143,7 @@ export function invoiceHasSales(
   allBatches: Batch[],
 ): boolean {
   const invoiceBatches = allBatches.filter(
-    (b) => invoice.batchIds.includes(b.id) && b.status !== "archived",
+    (b) => b.purchaseInvoiceId === invoice.id && b.status !== "archived",
   );
   return invoiceBatches.some((batch) =>
     Object.entries(batch.initialQuantities).some(
@@ -169,7 +169,7 @@ export function getProductVariantMinQty(
 ): Record<string, number> {
   const mins: Record<string, number> = {};
   const invoiceBatches = allBatches.filter(
-    (b) => invoice.batchIds.includes(b.id) && b.status !== "archived",
+    (b) => b.purchaseInvoiceId === invoice.id && b.status !== "archived",
   );
 
   for (const batch of invoiceBatches) {
@@ -331,7 +331,7 @@ export function PurchasesProvider({ children }: { children: ReactNode }) {
     }
 
     const invoiceBatches = batches.filter((b) =>
-      invoice.batchIds.includes(b.id),
+      b.purchaseInvoiceId === invoice.id,
     );
 
     // Safe to cancel
@@ -377,7 +377,7 @@ export function PurchasesProvider({ children }: { children: ReactNode }) {
 
       if (itemsChanged) {
         const invoiceBatches = batches.filter(
-          (b) => invoice.batchIds.includes(b.id) && b.status !== "archived",
+          (b) => b.purchaseInvoiceId === invoice.id && b.status !== "archived",
         );
         const nextBatchIds = new Set<string>();
         const coveredVariantKeys = new Set<string>();
@@ -497,13 +497,12 @@ export function PurchasesProvider({ children }: { children: ReactNode }) {
           created.forEach((b) => nextBatchIds.add(b.id));
         }
 
-        invoice.batchIds.forEach((id) => {
-          if (nextBatchIds.has(id)) return;
-          const b = batches.find((x) => x.id === id);
-          if (b && b.status !== "archived") {
-            updateBatch(id, { status: "archived", remainingQuantities: {} });
-          }
-        });
+        batches
+          .filter(b => b.purchaseInvoiceId === invoice.id && b.status !== "archived")
+          .forEach((b) => {
+            if (nextBatchIds.has(b.id)) return;
+            updateBatch(b.id, { status: "archived", remainingQuantities: {} });
+          });
 
         updates.items = normalizedItems;
         updates.batchIds = Array.from(nextBatchIds);
@@ -512,7 +511,7 @@ export function PurchasesProvider({ children }: { children: ReactNode }) {
       // Just updating metadata (e.g. date, supplier). Update existing batches metadata if needed.
       if (updates.date !== undefined || updates.supplierId !== undefined) {
         const invoiceBatches = batches.filter((b) =>
-          invoice.batchIds.includes(b.id),
+          b.purchaseInvoiceId === invoice.id,
         );
         for (const batch of invoiceBatches) {
           updateBatch(batch.id, {

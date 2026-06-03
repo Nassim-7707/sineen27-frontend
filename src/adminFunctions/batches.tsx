@@ -128,15 +128,86 @@ function generateBatchNumber(): string {
   return `BCH-${y}${m}${d}-${seq}`;
 }
 
+// Backend stores remainingQuantities as { colorName: { sizeName: { quantity, purchasePrice, suggestedSellingPrice } } }.
+// This function expands one backend batch into one frontend Batch per color with flat quantities.
+function expandBackendBatch(b: any): Batch[] {
+  const receiveDate =
+    typeof b.receiveDate === "string"
+      ? b.receiveDate
+      : new Date(b.receiveDate).toISOString();
+
+  const remaining = b.remainingQuantities as Record<string, any> | null;
+  const initial = b.initialQuantities as Record<string, any> | null;
+  if (!remaining || typeof remaining !== "object") return [];
+
+  // Detect nested format: first value is an object → { color: { size: { qty, ... } } }
+  const firstVal = Object.values(remaining)[0];
+  const isNested = firstVal != null && typeof firstVal === "object";
+
+  if (!isNested) {
+    // Already flat: { sizeName: quantity }
+    return [{
+      id: b.id,
+      batchNumber: b.batchNumber,
+      productId: b.productId,
+      color: b.color,
+      supplierId: b.supplierId ?? null,
+      purchaseInvoiceId: b.purchaseInvoiceId ?? "",
+      receiveDate,
+      purchasePrice: b.purchasePrice || 0,
+      suggestedSellingPrice: b.suggestedSellingPrice || 0,
+      initialQuantities: (initial || remaining) as Record<string, number>,
+      remainingQuantities: remaining as Record<string, number>,
+      status: b.status || "active",
+    }];
+  }
+
+  // Nested format — one frontend batch per color
+  const colorEntries = Object.entries(remaining as Record<string, Record<string, any>>);
+  return colorEntries.flatMap(([colorName, sizes]) => {
+    if (!sizes || typeof sizes !== "object") return [];
+    const flatRemaining: Record<string, number> = {};
+    const flatInitial: Record<string, number> = {};
+    let purchasePrice = 0;
+    let suggestedSellingPrice = 0;
+
+    for (const [sizeName, sizeData] of Object.entries(sizes)) {
+      if (sizeData && typeof sizeData === "object") {
+        flatRemaining[sizeName] = Number((sizeData as any).quantity) || 0;
+        flatInitial[sizeName] = Number(initial?.[colorName]?.[sizeName]?.quantity ?? (sizeData as any).quantity) || 0;
+        if (!purchasePrice) purchasePrice = Number((sizeData as any).purchasePrice) || 0;
+        if (!suggestedSellingPrice) suggestedSellingPrice = Number((sizeData as any).suggestedSellingPrice) || 0;
+      } else {
+        flatRemaining[sizeName] = Number(sizeData) || 0;
+        flatInitial[sizeName] = Number(initial?.[colorName]?.[sizeName]) || Number(sizeData) || 0;
+      }
+    }
+
+    // Single-color batches keep original ID; multi-color get a ::color suffix
+    const batchId = colorEntries.length === 1 ? b.id : `${b.id}::${colorName}`;
+    return [{
+      id: batchId,
+      batchNumber: b.batchNumber,
+      productId: b.productId,
+      color: colorName,
+      supplierId: b.supplierId ?? null,
+      purchaseInvoiceId: b.purchaseInvoiceId ?? "",
+      receiveDate,
+      purchasePrice,
+      suggestedSellingPrice,
+      initialQuantities: flatInitial,
+      remainingQuantities: flatRemaining,
+      status: b.status || "active",
+    }];
+  });
+}
+
 export function BatchesProvider({ children }: { children: ReactNode }) {
   const [batches, setBatches] = useState<Batch[]>([]);
 
   useEffect(() => {
     batchesApi.getAll().then((data: any[]) => {
-      const mapped = data.map((b) => ({
-        ...b,
-        receiveDate: typeof b.receiveDate === "string" ? b.receiveDate : new Date(b.receiveDate).toISOString(),
-      })) as Batch[];
+      const mapped: Batch[] = data.flatMap(expandBackendBatch);
       setBatches(mapped);
       batchCounter = mapped.length;
     }).catch(() => {});

@@ -47,7 +47,7 @@ async function apiFetch<T>(
 
   if (!res.ok) {
     const body = await res.json().catch(() => ({}));
-    throw new ApiError(body.message || `HTTP ${res.status}`, res.status);
+    throw new ApiError(body.error || body.message || `HTTP ${res.status}`, res.status);
   }
 
   if (res.status === 204) return null as T;
@@ -107,6 +107,11 @@ export const users = {
     }),
   deactivate: (id: string) =>
     apiFetch<{ id: string; isActive: boolean }>(`/admin/users/${id}/deactivate`, { method: "PATCH" }),
+  setPassword: (id: string, newPassword: string) =>
+    apiFetch<{ success: boolean }>(`/admin/users/${id}/password`, {
+      method: "PATCH",
+      body: JSON.stringify({ newPassword }),
+    }),
 };
 
 // ── Products ──────────────────────────────────────────────────────────────────

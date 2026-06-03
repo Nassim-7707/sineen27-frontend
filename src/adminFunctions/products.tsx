@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { sanitizeProductCopy } from "@/adminFunctions/plainCopy";
+import { saveToStorage, loadFromStorage } from "@/adminFunctions/storage";
 import { getAdminCatalogProducts } from "@/adminFunctions/productDisplay";
 import { products as api } from "@/adminFunctions/api";
 
@@ -63,15 +64,19 @@ export function ProductsProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   async function loadProducts() {
+    // Load from localStorage instantly (survives refresh)
+    const cached = loadFromStorage<Product[]>("products");
+    if (cached && cached.length > 0) setProducts(cached);
+    // Sync from API
     try {
       const data = await api.getAll() as any[];
-      setProducts(data ? data.map(mapProduct) : []);
-    } catch (err: any) {
-      if (err?.status === 401) {
-        // Token expired — clear and let auth guard handle redirect
-        setProducts([]);
+      if (data !== null) {
+        const mapped = data.map(mapProduct);
+        setProducts(mapped);
+        saveToStorage("products", mapped);
       }
-      // Network error — keep current state (don't wipe products on flaky connection)
+    } catch (err: any) {
+      if (err?.status === 401) setProducts([]);
       console.warn("[Products] Load failed:", err?.message);
     }
   }
@@ -79,6 +84,7 @@ export function ProductsProvider({ children }: { children: React.ReactNode }) {
   // ── Save helpers ──────────────────────────────────────────
   function saveLocal(newProducts: Product[]) {
     setProducts(newProducts);
+    saveToStorage("products", newProducts);
   }
 
   function saveFilters(cs: Record<string, string[]>, cats: string[]) {
@@ -97,23 +103,18 @@ export function ProductsProvider({ children }: { children: React.ReactNode }) {
     // Optimistic update in UI
     saveLocal([...products, newProduct]);
 
-    // Strip base64 image before sending to backend (too large)
-    // Only send URL images, not base64 data URLs
-    const isBase64 = newProduct.image?.startsWith("data:");
-    const imageForBackend = isBase64 ? "/placeholder.svg" : newProduct.image;
-
-    // Strip frontend-only fields that don't exist in the database schema
+    // Send image to backend — backend uploads to Cloudinary and returns URL
     const { image, basePriceDZD, costPriceDZD, stock, sizeCostPrices, ...backendProduct } = newProduct;
 
     try {
       const saved = await api.create({
         ...backendProduct,
         clientId: newProduct.id,
-        imageUrl: imageForBackend,
+        imageUrl: newProduct.image, // backend will upload to Cloudinary
       }) as any;
 
-      // Keep local image (base64) for display, use server id
-      const merged = { ...mapProduct(saved), image: newProduct.image };
+      // Update with Cloudinary URL from server
+      const merged = { ...mapProduct(saved), image: saved.imageUrl || newProduct.image };
       saveLocal([...products.filter(x => x.id !== newProduct.id), merged]);
       await loadProducts();
     } catch (err: any) {

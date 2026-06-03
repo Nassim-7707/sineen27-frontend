@@ -566,6 +566,17 @@ export function PurchasesProvider({ children }: { children: ReactNode }) {
     savePurchases(
       purchases.map((p) => (p.id === invoiceId ? { ...p, ...merged } : p)),
     );
+
+    // Update product prices from updated invoice items
+    if (updates.items) {
+      updates.items.forEach((item: any) => {
+        const price = item.suggestedSellingPrice || item.data?.suggestedSellingPrice || 0;
+        if (item.productId && price > 0) {
+          productsApi.update(item.productId, { basePriceDZD: price }).catch(() => {});
+        }
+      });
+    }
+
     return { success: true };
   };
 

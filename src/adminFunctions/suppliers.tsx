@@ -1,5 +1,6 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from "react";
 import { suppliers as suppliersApi } from "@/adminFunctions/api";
+import { saveToStorage, loadFromStorage } from "@/adminFunctions/storage";
 
 export interface Supplier {
   id: string;
@@ -25,9 +26,16 @@ export function SuppliersProvider({ children }: { children: ReactNode }) {
   useEffect(() => { load(); }, []);
 
   async function load() {
+    // Load from localStorage instantly
+    const cached = loadFromStorage<Supplier[]>("suppliers");
+    if (cached && cached.length > 0) setSuppliers(cached);
+    // Sync from API
     try {
       const data = await suppliersApi.getAll() as Supplier[];
-      if (data) setSuppliers(data);
+      if (data && data.length > 0) {
+        setSuppliers(data);
+        saveToStorage("suppliers", data);
+      }
     } catch {}
   }
 

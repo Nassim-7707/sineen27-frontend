@@ -182,13 +182,6 @@ export default function ProductCard({
                 −{product.discountPercent}%
               </div>
             )}
-            {totalStock === 0 && (
-              <div
-                className={`absolute ${onSale ? "top-12" : "top-4"} left-4 text-white text-[10px] font-black px-3 py-1 rounded-full shadow-lg border border-white/20 bg-red-600`}
-              >
-                نفد المخزون
-              </div>
-            )}
           </div>
 
           <div className="p-4 flex flex-col flex-1 justify-between gap-4">
@@ -234,7 +227,7 @@ export default function ProductCard({
                 variant="outline"
                 className="h-9 w-9 border-accent text-accent hover:bg-accent hover:text-accent-foreground transition-all duration-200 hover:scale-110"
                 onClick={handleAddClick}
-                disabled={totalStock === 0}
+                disabled={false}
               >
                 <ShoppingCart className="h-4 w-4" />
               </Button>

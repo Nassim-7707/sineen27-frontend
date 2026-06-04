@@ -1,7 +1,7 @@
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { useState, useEffect, useMemo } from "react";
 import { ArrowRight, ShoppingCart, Zap, ZoomIn } from "lucide-react";
-import { useProducts } from "@/adminFunctions/products";
+import { usePublicProducts } from "@/customerFunctions/usePublicProducts";
 import { getPublicProducts, pickSimilarProducts } from "@/adminFunctions/productDisplay";
 import { useBatches } from "@/adminFunctions/batches";
 import { useCart } from "@/customerFunctions/cart";
@@ -16,8 +16,8 @@ import { applyProductDiscount, hasProductDiscount } from "@/customerFunctions/pr
 export default function ProductDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { products: allProducts } = useProducts();
-  const products = getPublicProducts(allProducts);
+  const { products: allProducts } = usePublicProducts();
+  const products = allProducts;
   const {
     batches,
     getLowestSellingPrice,

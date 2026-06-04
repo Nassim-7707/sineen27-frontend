@@ -1,3 +1,4 @@
+import { saveToStorage, loadFromStorage } from "@/adminFunctions/storage";
 import { createContext, useContext, useState, ReactNode, useEffect, useCallback, useMemo } from "react";
 import type { Product } from "@/adminFunctions/products";
 import { mergeWilayaCommunes, defaultCommunesForWilaya } from "@/adminFunctions/communes";
@@ -184,9 +185,15 @@ export function OrdersProvider({ children }: { children: ReactNode }) {
   }, []);
 
   async function loadOrders() {
+    const cached = loadFromStorage<Order[]>("orders");
+    if (cached && cached.length > 0) setOrders(cached);
     try {
       const data = await ordersApi.getAll() as any[];
-      setOrders(data && data.length > 0 ? data.map(mapBackendToFrontend) : []);
+      if (data) {
+        const mapped = data.map(mapBackendToFrontend);
+        setOrders(mapped);
+        saveToStorage("orders", mapped);
+      }
     } catch {}
   }
 
@@ -203,6 +210,7 @@ export function OrdersProvider({ children }: { children: ReactNode }) {
 
   function saveLocal(newOrders: Order[]) {
     setOrders(newOrders);
+    saveToStorage("orders", newOrders);
   }
 
   const refreshOrders = useCallback(() => { loadOrders(); }, []);

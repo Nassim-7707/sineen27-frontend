@@ -232,8 +232,7 @@ export default function ProductDetail() {
             <div>
               <h4 className="font-bold text-foreground mb-3">المقاس</h4>
               <div className="flex flex-wrap gap-2">
-                {sizesWithStock.map(({ size: s, stock }) => {
-                  const outOfStock = stock <= 0;
+                {sizesWithStock.map(({ size: s }) => {
                   const isSelected = selectedSize === s;
                   return (
                     <motion.button
@@ -242,13 +241,9 @@ export default function ProductDetail() {
                       whileTap={{ scale: 0.9 }}
                       onClick={() => setSelectedSize(s)}
                       className={`w-14 h-14 rounded-xl border-2 text-sm font-bold transition-all duration-200 ${
-                        isSelected && outOfStock
-                          ? "border-red-500 bg-red-50 text-red-700 shadow-md"
-                          : isSelected
-                            ? "gold-gradient text-accent-foreground border-transparent shadow-md"
-                            : outOfStock
-                              ? "border-red-300 bg-red-50/80 text-red-600 hover:border-red-400"
-                              : "border-border text-foreground hover:border-accent"
+                        isSelected
+                          ? "gold-gradient text-accent-foreground border-transparent shadow-md"
+                          : "border-border text-foreground hover:border-accent"
                       }`}
                     >
                       {s}

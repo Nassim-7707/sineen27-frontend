@@ -255,13 +255,13 @@ export default function Dashboard() {
     setPosCart([]);
   };
 
-  const completeSaleFromOrder = (order: Order) => {
+  const completeSaleFromOrder = async (order: Order) => {
     const total = order.totalDZD ?? order.totalAmount ?? 0;
     const delivery = order.deliveryFee ?? 0;
 
     try {
       const saleItems = buildSaleItemsFromOrder(order, products);
-      completeSale({
+      await completeSale({
         date: new Date().toISOString(),
         customerId: order.customerId ?? null,
         items: saleItems,
@@ -273,7 +273,7 @@ export default function Dashboard() {
         paymentMethod: (order.paymentMethod as "cash") || "cash",
         cashierName: currentUser?.username || "Unknown",
       });
-      updateOrderStatus(order.id, "تم التسليم");
+      await updateOrderStatus(order.id, "تم التسليم");
       toast.success("تم إتمام البيع بنجاح وتحديث حالة الطلب");
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : "فشل إتمام البيع";
@@ -803,7 +803,7 @@ export default function Dashboard() {
             removeFromPosCart={(idx) =>
               setPosCart((prev) => prev.filter((_, i) => i !== idx))
             }
-            processPosSale={() => {
+            processPosSale={async () => {
               if (posCart.length === 0) return;
 
               // Pre-flight check (atomic deduction)
@@ -880,7 +880,7 @@ export default function Dashboard() {
               } else {
                 // Create new order
                 // Process Sale via transactions context
-                completeSale({
+                await completeSale({
                   date: new Date().toISOString(),
                   customerId: null,
                   items: posCart.map((i) => ({

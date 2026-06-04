@@ -93,6 +93,7 @@ interface BatchesContextType {
     batches: Omit<Batch, "id" | "batchNumber" | "status">[],
   ) => Batch[];
   updateBatch: (id: string, updates: Partial<Batch>) => void;
+  refreshBatches: () => void;
   deductStock: (
     productId: string,
     size: string,
@@ -207,12 +208,33 @@ export function BatchesProvider({ children }: { children: ReactNode }) {
   const [batches, setBatches] = useState<Batch[]>([]);
 
   useEffect(() => {
+    // Load from localStorage first
+    const cached = loadFromStorage<Batch[]>("batches");
+    if (cached && cached.length > 0) {
+      setBatches(cached);
+      batchCounter = cached.length;
+    }
+    // Then sync from API
     batchesApi.getAll().then((data: any[]) => {
-      const mapped: Batch[] = data.flatMap(expandBackendBatch);
-      setBatches(mapped);
-      batchCounter = mapped.length;
+      if (data && data.length > 0) {
+        const mapped: Batch[] = data.flatMap(expandBackendBatch);
+        setBatches(mapped);
+        saveToStorage("batches", mapped);
+        batchCounter = mapped.length;
+      }
     }).catch(() => {});
   }, []);
+
+  const refreshBatches = () => {
+    batchesApi.getAll().then((data: any[]) => {
+      if (data && data.length > 0) {
+        const mapped: Batch[] = data.flatMap(expandBackendBatch);
+        setBatches(mapped);
+        saveToStorage("batches", mapped);
+        batchCounter = mapped.length;
+      }
+    }).catch(() => {});
+  };
 
   const saveBatches = (newBatches: Batch[]) => {
     const processed = newBatches.map((b) => {
@@ -403,6 +425,7 @@ export function BatchesProvider({ children }: { children: ReactNode }) {
         batches,
         addBatches,
         updateBatch,
+        refreshBatches,
         deductStock,
         getProductTotalStock,
         getProductStockBySize,

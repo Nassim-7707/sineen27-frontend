@@ -232,7 +232,7 @@ function generateInvoiceNumber(): string {
 
 export function PurchasesProvider({ children }: { children: ReactNode }) {
   const [purchases, setPurchases] = useState<PurchaseInvoice[]>([]);
-  const { addBatches, batches, updateBatch } = useBatches();
+  const { addBatches, batches, updateBatch, refreshBatches } = useBatches();
   const { recordDebt } = useSuppliers();
 
   useEffect(() => {
@@ -305,7 +305,7 @@ export function PurchasesProvider({ children }: { children: ReactNode }) {
 
     savePurchases([newInvoice, ...purchases]);
 
-    // Sync to backend
+    // Sync to backend then reload batches to show updated stock
     purchasesApi.create({
       clientId: newInvoiceId,
       invoiceNumber: invoiceNum,
@@ -315,6 +315,9 @@ export function PurchasesProvider({ children }: { children: ReactNode }) {
       totalAmount: sanitized.totalAmount,
       paidAmount: sanitized.paidAmount,
       notes: sanitized.notes,
+    }).then(() => {
+      // Reload batches from database to show accurate stock
+      refreshBatches();
     }).catch(() => {});
 
     // 3. Update Supplier Debt if unpaid

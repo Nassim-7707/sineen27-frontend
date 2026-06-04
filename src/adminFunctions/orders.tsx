@@ -136,7 +136,7 @@ interface OrdersContextType {
   restoreMissingWilayas: () => number;
   getDeliveryFee: (wilaya: string) => number;
   getCommunesForWilaya: (wilaya: string) => string[];
-  completeSale: (order: Omit<Order, "id" | "date" | "status">) => string;
+  completeSale: (order: Omit<Order, "id" | "date" | "status">) => Promise<string>;
   refreshOrders: () => void;
 }
 
@@ -256,25 +256,31 @@ export function OrdersProvider({ children }: { children: ReactNode }) {
     saveLocal(orders.filter(o => o.id !== id));
   };
 
-  const updateOrderStatus = (id: string, status: OrderStatus) => {
+  const updateOrderStatus = async (id: string, status: OrderStatus) => {
     saveLocal(orders.map(o => o.id === id ? { ...o, status } : o));
     const backendStatus = status === "مكتمل" ? "completed" : status === "ملغى" ? "cancelled" : status === "تم التسليم" ? "shipped" : "confirmed";
-    ordersApi.updateStatus(id, backendStatus).catch(() => {});
+    try {
+      await ordersApi.updateStatus(id, backendStatus);
+      await loadOrders(); // reload from database to confirm
+    } catch {}
   };
 
-  const completeSale = (order: Omit<Order, "id" | "date" | "status">): string => {
+  const completeSale = async (order: Omit<Order, "id" | "date" | "status">): Promise<string> => {
     const id = Date.now().toString();
     const newOrder: Order = { ...order, id, date: new Date().toISOString(), status: "مكتمل", isOnlineOrder: false };
     saveLocal([newOrder, ...orders]);
-    ordersApi.completePOS({
-      clientId: id,
-      customerName: order.customerName,
-      customerPhone: order.customerPhone,
-      items: order.items,
-      totalDZD: order.totalDZD,
-      cashierName: order.cashierName || "admin",
-      customerId: order.customerId,
-    }).catch(() => {});
+    try {
+      await ordersApi.completePOS({
+        clientId: id,
+        customerName: order.customerName,
+        customerPhone: order.customerPhone,
+        items: order.items,
+        totalDZD: order.totalDZD,
+        cashierName: order.cashierName || "admin",
+        customerId: order.customerId,
+      });
+      await loadOrders(); // reload from database to confirm
+    } catch {}
     return id;
   };
 

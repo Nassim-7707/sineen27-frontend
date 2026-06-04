@@ -257,17 +257,18 @@ export function OrdersProvider({ children }: { children: ReactNode }) {
   };
 
   const updateOrderStatus = async (id: string, status: OrderStatus) => {
+    // Optimistic update — changes button text immediately
     saveLocal(orders.map(o => o.id === id ? { ...o, status } : o));
     const backendStatus = status === "مكتمل" ? "completed" : status === "ملغى" ? "cancelled" : status === "تم التسليم" ? "shipped" : "confirmed";
     try {
       await ordersApi.updateStatus(id, backendStatus);
-      await loadOrders(); // reload from database to confirm
     } catch {}
   };
 
   const completeSale = async (order: Omit<Order, "id" | "date" | "status">): Promise<string> => {
     const id = Date.now().toString();
     const newOrder: Order = { ...order, id, date: new Date().toISOString(), status: "مكتمل", isOnlineOrder: false };
+    // Optimistic update — appears immediately
     saveLocal([newOrder, ...orders]);
     try {
       await ordersApi.completePOS({
@@ -279,7 +280,6 @@ export function OrdersProvider({ children }: { children: ReactNode }) {
         cashierName: order.cashierName || "admin",
         customerId: order.customerId,
       });
-      await loadOrders(); // reload from database to confirm
     } catch {}
     return id;
   };

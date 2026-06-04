@@ -116,10 +116,6 @@ export default function ProductDetail() {
       toast.error("اختر اللون", { description: "يرجى اختيار لون قبل الإضافة" });
       return false;
     }
-    if (availableStock <= 0) {
-      toast.error("نفد المخزون", { description: "هذا المقاس غير متوفر حالياً" });
-      return false;
-    }
     addItem({
       product,
       quantity: 1,
@@ -260,11 +256,6 @@ export default function ProductDetail() {
                   );
                 })}
               </div>
-              {availableStock <= 0 && selectedSize && (
-                <p className="text-sm text-red-600 font-medium mt-2">
-                  المقاس {selectedSize} غير متوفر — اختر مقاساً آخر
-                </p>
-              )}
             </div>
           )}
 

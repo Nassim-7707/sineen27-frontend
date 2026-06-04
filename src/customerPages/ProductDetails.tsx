@@ -94,7 +94,17 @@ export default function ProductDetail() {
   const availableStock = selectedSize
     ? getProductStockBySize(product.id, selectedSize, selectedColor || undefined)
     : 0;
-  const totalStock = getProductTotalStock(product.id, product.sizes);
+  // Use batch stock if available, fall back to product.stock JSON field
+  const batchStock = getProductTotalStock(product.id, product.sizes);
+  const productStockField = (product as any).stock;
+  const stockFromProduct = productStockField && typeof productStockField === "object"
+    ? Object.values(productStockField as Record<string, any>).reduce((sum: number, v: any) => {
+        if (typeof v === "number") return sum + v;
+        if (typeof v === "object") return sum + Object.values(v as Record<string, number>).reduce((s, n) => s + (typeof n === "number" ? n : 0), 0);
+        return sum;
+      }, 0)
+    : 0;
+  const totalStock = batchStock > 0 ? batchStock : (stockFromProduct > 0 ? stockFromProduct : 1); // default 1 so customers can order
   const showSizePicker = (product.sizes || []).some((s) => !isStandardSize(s));
 
   const addToCart = (): boolean => {
@@ -213,13 +223,6 @@ export default function ProductDetail() {
               </span>
             )}
           </div>
-          {totalStock === 0 && (
-            <div className="flex items-center gap-2 mb-4">
-              <span className="px-3 py-1 text-sm font-bold rounded-full bg-red-100 text-red-800">
-                نفد المخزون
-              </span>
-            </div>
-          )}
           <p className="text-muted-foreground leading-relaxed text-lg">
             {product.description}
           </p>
@@ -270,9 +273,7 @@ export default function ProductDetail() {
               <h4 className="font-bold text-foreground mb-3">اللون</h4>
               <div className="flex flex-wrap gap-2">
                 {(product.colors || []).map((c) => {
-                  const hasAnyStock = (product.sizes || []).some(
-                    (s) => getProductStockBySize(product.id, s, c) > 0,
-                  );
+                  const hasAnyStock = true; // stock managed in local dashboard
                   return (
                   <motion.button
                     key={c}
@@ -303,7 +304,7 @@ export default function ProductDetail() {
                 size="lg"
                 className="w-full gold-gradient border-0 text-foreground font-bold text-base min-h-[48px]"
                 onClick={handleAdd}
-                disabled={totalStock === 0 || availableStock <= 0}
+                disabled={false}
               >
                 <ShoppingCart className="ml-2 h-5 w-5" />
                 أضف إلى السلة
@@ -316,7 +317,7 @@ export default function ProductDetail() {
                 variant="outline"
                 className="w-full border-accent text-accent hover:bg-accent hover:text-accent-foreground min-h-[48px]"
                 onClick={handleBuyNow}
-                disabled={totalStock === 0 || availableStock <= 0}
+                disabled={false}
               >
                 <Zap className="ml-2 h-5 w-5" />
                 اشترِ الآن
